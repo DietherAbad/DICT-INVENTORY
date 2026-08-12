@@ -1,0 +1,10 @@
+﻿node_modules/
+graphify-out/
+Resource/
+.DS_Store
+.env
+backend/node_modules/
+backend/.env
+backend/uploads/
+backend/backups/
+admin/node_modules/

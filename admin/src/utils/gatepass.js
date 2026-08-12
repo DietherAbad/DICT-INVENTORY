@@ -1,5 +1,43 @@
 import { BASE_URL } from "./config";
 
+async function parseJson(res) {
+  const text = await res.text();
+  let body = null;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    body = { message: text };
+  }
+  if (!res.ok) {
+    const msg =
+      (body && (body.message || body.error)) ||
+      `Request failed (${res.status})`;
+    throw new Error(msg);
+  }
+  return body;
+}
+
+function authHeaders(extra = {}) {
+  const headers = { ...extra };
+  try {
+    const raw = localStorage.getItem("user");
+    const user = raw ? JSON.parse(raw) : null;
+    if (user?.token) headers.Authorization = `Bearer ${user.token}`;
+  } catch {
+    /* ignore */
+  }
+  return headers;
+}
+
+function gatepassFetch(path, options = {}) {
+  const opts = {
+    credentials: "include",
+    ...options,
+    headers: authHeaders(options.headers || {}),
+  };
+  return fetch(`${BASE_URL}${path}`, opts).then(parseJson);
+}
+
 /** Route prefix → inventory API collection path segment */
 export const QR_ROUTE_MAP = {
   checkitem: {
@@ -99,93 +137,70 @@ export function statusBadgeClass(status) {
   }
 }
 
-async function parseJson(res) {
-  const text = await res.text();
-  let body = null;
-  try {
-    body = text ? JSON.parse(text) : null;
-  } catch {
-    body = { message: text };
-  }
-  if (!res.ok) {
-    const msg =
-      (body && (body.message || body.error)) ||
-      `Request failed (${res.status})`;
-    throw new Error(msg);
-  }
-  return body;
-}
-
 export const gatepassApi = {
-  list: () =>
-    fetch(`${BASE_URL}/gatepass`).then(parseJson),
+  list: () => gatepassFetch("/gatepass"),
 
-  get: (id) =>
-    fetch(`${BASE_URL}/gatepass/${id}`).then(parseJson),
+  get: (id) => gatepassFetch(`/gatepass/${id}`),
 
   create: (payload) =>
-    fetch(`${BASE_URL}/gatepass`, {
+    gatepassFetch("/gatepass", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   update: (id, payload) =>
-    fetch(`${BASE_URL}/gatepass/${id}`, {
+    gatepassFetch(`/gatepass/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   addItem: (id, payload) =>
-    fetch(`${BASE_URL}/gatepass/${id}/items`, {
+    gatepassFetch(`/gatepass/${id}/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   removeItem: (id, inventoryId) =>
-    fetch(`${BASE_URL}/gatepass/${id}/items/${inventoryId}`, {
+    gatepassFetch(`/gatepass/${id}/items/${inventoryId}`, {
       method: "DELETE",
-    }).then(parseJson),
+    }),
 
   submit: (id) =>
-    fetch(`${BASE_URL}/gatepass/${id}/submit`, { method: "POST" }).then(
-      parseJson
-    ),
+    gatepassFetch(`/gatepass/${id}/submit`, { method: "POST" }),
 
   approve: (id, payload = {}) =>
-    fetch(`${BASE_URL}/gatepass/${id}/approve`, {
+    gatepassFetch(`/gatepass/${id}/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   release: (id, payload = {}) =>
-    fetch(`${BASE_URL}/gatepass/${id}/release`, {
+    gatepassFetch(`/gatepass/${id}/release`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   guard: (id, payload = {}) =>
-    fetch(`${BASE_URL}/gatepass/${id}/guard`, {
+    gatepassFetch(`/gatepass/${id}/guard`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 
   returnPass: (id) =>
-    fetch(`${BASE_URL}/gatepass/${id}/return`, { method: "POST" }).then(
-      parseJson
-    ),
+    gatepassFetch(`/gatepass/${id}/return`, { method: "POST" }),
 
   decline: (id, payload = {}) =>
-    fetch(`${BASE_URL}/gatepass/${id}/decline`, {
+    gatepassFetch(`/gatepass/${id}/decline`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-    }).then(parseJson),
+    }),
 };
 
 export function itemToGatepassPayload(item, collection, source, username) {
