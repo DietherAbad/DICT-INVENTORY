@@ -190,8 +190,31 @@ export default function OfficeDashboard() {
           })
           .slice(0, 50);
 
+        let gatepassNotifs = [];
+        try {
+          const gpRes = await fetch(`${BASE_URL}/gatepass`);
+          if (gpRes.ok) {
+            const gpData = await gpRes.json();
+            const list = Array.isArray(gpData) ? gpData : gpData?.data || [];
+            gatepassNotifs = list
+              .filter((g) =>
+                ["For Approval", "For Release", "Released"].includes(
+                  g.requeststatus
+                )
+              )
+              .slice(0, 20)
+              .map((g) => ({
+                msg: `Gatepass ${g.gatepass_no || g._id} (${g.requester}) is ${g.requeststatus}.`,
+                link: `/gatepass/${g._id}`,
+                cta: "Open",
+              }));
+          }
+        } catch {
+          /* backend may not expose /gatepass yet */
+        }
+
         const notifList =
-          notifyItems.length === 0
+          notifyItems.length === 0 && gatepassNotifs.length === 0
             ? [
                 {
                   msg: "No pending or for-transfer items right now.",
@@ -199,7 +222,9 @@ export default function OfficeDashboard() {
                   cta: "Refresh",
                 },
               ]
-            : notifyItems.map((it) => {
+            : [
+                ...gatepassNotifs,
+                ...notifyItems.map((it) => {
                 const name =
                   it.itemName ||
                   it.supplyName ||
@@ -214,7 +239,8 @@ export default function OfficeDashboard() {
                   link: "/request",
                   cta: "View",
                 };
-              });
+              }),
+              ];
 
         setTotals(newTotals);
         setDetail(newDetail);

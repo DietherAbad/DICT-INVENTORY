@@ -105,12 +105,20 @@ function TableRow({ data, isDistribution }) {
               </>
             )}
             {data.status === "Issued" && (
-              <Link
-                to={`/checkitem/${data._id}`}
-                className="block text-indigo-500 hover:bg-indigo-100 px-4 py-2 text-sm rounded-lg"
-              >
-                View Item
-              </Link>
+              <>
+                <Link
+                  to={`/checkitem/${data._id}`}
+                  className="block text-indigo-500 hover:bg-indigo-100 px-4 py-2 text-sm rounded-t-lg"
+                >
+                  View Item
+                </Link>
+                <Link
+                  to={`/gatepass/new?item=${data._id}&collection=inventoryofficeequipment`}
+                  className="block text-indigo-500 hover:bg-indigo-100 px-4 py-2 text-sm rounded-b-lg"
+                >
+                  Take Outside
+                </Link>
+              </>
             )}
           </div>
         )}

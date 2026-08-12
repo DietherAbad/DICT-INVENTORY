@@ -60,6 +60,9 @@ import MeasureTable from './table/MeasureTable';
 import ClassificationTable from './table/ClassificationTable';
 import MyInventorytable from './table/MyInventorytable';
 import Request from './table/Request';
+import GatePassTable from './table/GatePassTable';
+import GatePassRequest from './pages/GatePassRequest';
+import GatePassForm from './details/GatePassForm';
 import { Checkform } from './details/Checkform';
 import { AuthContext } from "./context/AuthContext";
 
@@ -105,6 +108,9 @@ function App() {
       <Route path="/classification" element={user ? <ClassificationTable /> : <Navigate to="/login" />} />
       <Route path="/myinventory" element={user ? <Template><MyInventorytable /></Template> : <Navigate to="/login" />} />
       <Route path="/request" element={user ? <Template><Request /></Template> : <Navigate to="/login" />} />
+      <Route path="/gatepass" element={user ? <Template><GatePassTable /></Template> : <Navigate to="/login" />} />
+      <Route path="/gatepass/new" element={user ? <Template><GatePassRequest /></Template> : <Navigate to="/login" />} />
+      <Route path="/gatepass/:id" element={user ? <Template><GatePassForm /></Template> : <Navigate to="/login" />} />
       <Route path="/stocktableofficesupply" element={user ? <Stocktableofficesupply /> : <Navigate to="/login" />} />
       <Route path="/distributiontableofficesupply" element={user ? <DistributionTable /> : <Navigate to="/login" />} />
       <Route path="/stocktableofficeequipments" element={user ? <Stocktableofficeequipments /> : <Navigate to="/login" />} />
