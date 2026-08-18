@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
-import DICT_GIF from '../assets/DICTGIF.gif'; // Add the path to your GIF here
+import DICT_GIF from '../assets/DICTGIF.gif';
 import { AuthContext } from '../context/AuthContext';
 import { BASE_URL } from '../utils/config';
+import { SAMPLE_PASSWORD, SAMPLE_USERS } from '../utils/sampleCredentials';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -12,10 +13,11 @@ function Login() {
 
     const { dispatch } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+    const [showPassword, setShowPassword] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-    const [showUnsuccessfulPopup, setShowUnsuccessfulPopup] = useState(false); // State for unsuccessful login popup
-    const [showContactPopup, setShowContactPopup] = useState(false); // State for "Contact your administrator" popup
+    const [showUnsuccessfulPopup, setShowUnsuccessfulPopup] = useState(false);
+    const [showContactPopup, setShowContactPopup] = useState(false);
+    const [showSamples, setShowSamples] = useState(false);
 
     const handleChange = e => {
         const { id, value } = e.target;
@@ -25,9 +27,14 @@ function Login() {
         }));
     };
 
+    const fillSample = (email) => {
+        setCredentials({ email, password: SAMPLE_PASSWORD });
+        setShowSamples(false);
+    };
+
     const handleClick = async e => {
         e.preventDefault();
-    
+
         try {
             const res = await fetch(`${BASE_URL}/auth/login`, {
                 method: 'post',
@@ -36,18 +43,18 @@ function Login() {
                 },
                 body: JSON.stringify(credentials)
             });
-    
+
             const result = await res.json();
-    
+
             if (!res.ok) {
-                setShowUnsuccessfulPopup(true); // Show unsuccessful popup
+                setShowUnsuccessfulPopup(true);
             } else {
                 dispatch({ type: 'LOGIN_SUCCESS', payload: result });
-                setShowSuccessPopup(true); // Show success popup
+                setShowSuccessPopup(true);
                 setTimeout(() => {
                     setShowSuccessPopup(false);
-                    navigate('/'); // Delay navigation to allow popup to be shown
-                }, 2000); 
+                    navigate('/');
+                }, 2000);
             }
         } catch (err) {
             alert(err.message);
@@ -55,7 +62,7 @@ function Login() {
     };
 
     const handleSignUpClick = () => {
-        setShowContactPopup(true); // Show "Contact your administrator" popup
+        setShowContactPopup(true);
     };
 
     return (
@@ -76,19 +83,52 @@ function Login() {
                     <div className="mt-8 md:flex items-center">
                         <div className="flex flex-col w-full">
                             <label className="mb-3 text-lg leading-none text-gray-800">Email Address</label>
-                            <input type="email" id="email" onChange={handleChange} className="w-full bg-gray-100 text-lg font-medium leading-none text-gray-800 p-4 border rounded border-gray-200" placeholder="Email Address" />
+                            <input type="email" id="email" value={credentials.email} onChange={handleChange} className="w-full bg-gray-100 text-lg font-medium leading-none text-gray-800 p-4 border rounded border-gray-200" placeholder="Email Address" />
                         </div>
                     </div>
                     <div className="mt-8 md:flex items-center">
                         <div className="flex flex-col w-full">
                             <label className="mb-3 text-lg leading-none text-gray-800">Password</label>
                             <div className="relative w-full">
-                                <input type={showPassword ? "text" : "password"} id="password" onChange={handleChange} className="w-full bg-gray-100 text-lg font-medium leading-none text-gray-800 p-4 border rounded border-gray-200" placeholder="Password" />
+                                <input type={showPassword ? "text" : "password"} id="password" value={credentials.password} onChange={handleChange} className="w-full bg-gray-100 text-lg font-medium leading-none text-gray-800 p-4 border rounded border-gray-200" placeholder="Password" />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600">
                                     {showPassword ? 'Hide' : 'Show'}
                                 </button>
                             </div>
                         </div>
+                    </div>
+                    <div className="mt-4">
+                        <button
+                            type="button"
+                            onClick={() => setShowSamples((v) => !v)}
+                            className="text-sm text-indigo-600 hover:underline"
+                        >
+                            {showSamples ? "Hide" : "Show"} sample accounts (per role)
+                        </button>
+                        {showSamples && (
+                            <div className="mt-3 max-h-56 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50 text-sm">
+                                <p className="mb-2 text-gray-600">
+                                    Password for all: <code className="font-semibold">{SAMPLE_PASSWORD}</code>
+                                </p>
+                                <ul className="space-y-1">
+                                    {SAMPLE_USERS.map((u) => (
+                                        <li key={u.email}>
+                                            <button
+                                                type="button"
+                                                onClick={() => fillSample(u.email)}
+                                                className="w-full text-left px-2 py-1 rounded hover:bg-indigo-50"
+                                            >
+                                                <span className="font-medium text-gray-800">{u.role}</span>
+                                                <span className="block text-xs text-gray-500">{u.email}</span>
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className="mt-2 text-xs text-amber-700">
+                                    Seed first if login fails: <code>npm run seed:sample-users</code> (API on :4000)
+                                </p>
+                            </div>
+                        )}
                     </div>
                     <div className="mt-8 flex items-center">
                         <button onClick={handleClick} className="flex items-center justify-center py-4 px-7 focus:outline-none bg-white border rounded border-gray-400 hover:bg-gray-100 focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">

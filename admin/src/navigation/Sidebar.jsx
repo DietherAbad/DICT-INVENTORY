@@ -32,6 +32,7 @@ export default function Sidebar() {
   const navtablereportict = () => navigate('/reportstableofficeictequip');
   const navmyinventory = () => navigate('/myinventory');
   const navrequest = () => navigate('/request');
+  const navgatepass = () => navigate('/gatepass');
 
 
     return (
@@ -93,6 +94,14 @@ export default function Sidebar() {
                                 <path d="M10 4L19 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         <p className="text-base leading-4 ">Inventory Requests</p>
+                    </button>
+                    <button onClick={navgatepass} className="flex jusitfy-start items-center w-full  space-x-6 focus:outline-none text-white focus:text-indigo-400   rounded ">
+                    <svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 7H18C19.1046 7 20 7.89543 20 9V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V9C4 7.89543 4.89543 7 6 7H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 3V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M9 6L12 3L15 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        <p className="text-base leading-4 ">Gatepass</p>
                     </button>
                 </div>
                 <div className="flex flex-col justify-start items-center px-6 border-b border-gray-600 w-full">
